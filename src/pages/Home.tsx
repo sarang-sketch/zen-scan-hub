@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Brain, Camera, TrendingUp, Shield, Sparkles, Heart, Moon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import heroImage from "@/assets/hero-wellness.jpg";
+import { AIExtension } from "@/components/AIExtension";
 
 export const Home = () => {
   const navigate = useNavigate();
@@ -178,6 +179,9 @@ export const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* AI Extension Section */}
+      <AIExtension />
 
       {/* About Section */}
       <section className="py-20">
