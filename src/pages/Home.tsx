@@ -1,9 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Brain, Camera, TrendingUp, Shield, Sparkles, Heart, Moon } from "lucide-react";
+import { Brain, Camera, TrendingUp, Shield, Sparkles, Heart, Moon, Puzzle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import heroImage from "@/assets/hero-wellness.jpg";
-import { AIExtension } from "@/components/AIExtension";
 
 export const Home = () => {
   const navigate = useNavigate();
@@ -36,6 +35,13 @@ export const Home = () => {
       description: "Safe monitoring tools for younger users with privacy protection",
       action: () => navigate("/parent"),
       gradient: "from-blue-500 to-indigo-600"
+    },
+    {
+      icon: Puzzle,
+      title: "AI Browser Extension",
+      description: "Control your digital habits with our smart browser extension",
+      action: () => navigate("/ai-extension"),
+      gradient: "from-rose-500 to-pink-600"
     }
   ];
 
@@ -179,9 +185,6 @@ export const Home = () => {
           </div>
         </div>
       </section>
-
-      {/* AI Extension Section */}
-      <AIExtension />
 
       {/* About Section */}
       <section className="py-20">

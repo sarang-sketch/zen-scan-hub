@@ -14,6 +14,7 @@ import { Login } from "./pages/Login";
 import { Parent } from "./pages/Parent";
 import { Wellness } from "./pages/Wellness";
 import { Workouts } from "./pages/Workouts";
+import { AIExtensionPage } from "./pages/AIExtensionPage";
 import TodoPage from "./pages/Todo";
 import NotFound from "./pages/NotFound";
 
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/help" element={<Help />} />
             <Route path="/login" element={<Login />} />
             <Route path="/parent" element={<Parent />} />
+            <Route path="/ai-extension" element={<AIExtensionPage />} />
             <Route path="/todo" element={<TodoPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
