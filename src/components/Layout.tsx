@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Brain, Camera, TrendingUp, Shield, LogIn, Menu, X, ListTodo } from "lucide-react";
+import { Brain, Camera, TrendingUp, Shield, LogIn, Menu, X, ListTodo, Puzzle } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { AIAssistant } from "@/components/AIAssistant";
 
@@ -19,6 +19,7 @@ export const Layout = ({ children }: LayoutProps) => {
     { name: "Progress", path: "/dashboard", icon: TrendingUp },
     { name: "To-Do List", path: "/todo", icon: ListTodo },
     { name: "Parent Mode", path: "/parent", icon: Shield },
+    { name: "AI Extension", path: "/ai-extension", icon: Puzzle },
   ];
 
   const handleNavigation = (path: string) => {
