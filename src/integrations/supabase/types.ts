@@ -293,7 +293,7 @@ export type Database = {
     Enums: {
       [_ in never]: never
     }
-    CompositeTypes:. {
+    CompositeTypes: {
       [_ in never]: never
     }
   }
