@@ -1,4 +1,4 @@
-# Welcome to your Lovable project
+# Welcome to Sarang Kadam Project AI-Gen - Youth Mental Wellness
 
 ## Project info
 
