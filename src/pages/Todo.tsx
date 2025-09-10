@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Bell } from 'lucide-react';
+import { PlusCircle, Bell, Sparkles } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 
 type Todo = Tables<'todo_lists'>;
@@ -199,6 +199,21 @@ const TodoPage: React.FC = () => {
               ))}
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      <Card className="max-w-3xl mx-auto bg-gradient-card border-border/50 mt-8">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-foreground flex items-center gap-2">
+            <Sparkles className="w-6 h-6 text-primary" />
+            Upcoming
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center text-muted-foreground p-4">
+            <p className="font-semibold text-lg">Your AI assistant is coming soon!</p>
+            <p className="text-sm">It will help you manage your day, schedules, and workout routines.</p>
+          </div>
         </CardContent>
       </Card>
     </div>
