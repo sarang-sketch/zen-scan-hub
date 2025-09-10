@@ -103,6 +103,8 @@ const TodoPage: React.FC = () => {
       if (!isNaN(parsedMinutes) && parsedMinutes > 0) {
         const taskName = newTask.trim() || 'your task';
         setTimeout(() => {
+          const audio = new Audio('https://raw.githubusercontent.com/akx/Notifications/master/WAV/andorra.wav');
+          audio.play();
           alert(`Reminder: It's time for "${taskName}"!`);
         }, parsedMinutes * 60 * 1000);
         toast.success(`Reminder set for "${taskName}" in ${parsedMinutes} minutes.`);
