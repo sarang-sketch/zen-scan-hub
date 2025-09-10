@@ -194,7 +194,7 @@ export const Home = () => {
                 We believe that true wellness begins with a healthy mind. In a world that's constantly demanding our attention, we've created a sanctuary for you to reconnect with yourself. Our mission is to empower and protect the mental well-being of the youth, providing tools that foster balance, resilience, and self-awareness.
               </p>
               <p className="text-md text-foreground italic">
-                Created with ❤️ by Sarang Kadam
+                Created by Sarang Kadam
               </p>
             </div>
           </Card>
