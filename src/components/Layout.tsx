@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Brain, Camera, TrendingUp, Shield, LogIn, Menu, X } from "lucide-react";
+import { Brain, Camera, TrendingUp, Shield, LogIn, Menu, X, ListTodo } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { AIAssistant } from "@/components/AIAssistant";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -16,6 +17,7 @@ export const Layout = ({ children }: LayoutProps) => {
     { name: "Checkup Test", path: "/checkup", icon: Brain },
     { name: "Photo Scanner", path: "/scanner", icon: Camera },
     { name: "Progress", path: "/dashboard", icon: TrendingUp },
+    { name: "To-Do List", path: "/todo", icon: ListTodo },
     { name: "Parent Mode", path: "/parent", icon: Shield },
   ];
 
@@ -135,6 +137,7 @@ export const Layout = ({ children }: LayoutProps) => {
           </div>
         </div>
       </footer>
+      <AIAssistant userId="a1b2c3d4-e5f6-7890-1234-567890abcdef" />
     </div>
   );
 };

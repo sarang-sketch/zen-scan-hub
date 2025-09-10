@@ -10,8 +10,8 @@ import { Mic, MicOff, Send, Volume2, VolumeX, MessageCircle, Brain } from 'lucid
 interface Message {
   id: string;
   message: string;
-  sender_type: string;
-  created_at: string;
+  sender: string;
+  timestamp: string;
   message_type: string;
 }
 
@@ -28,7 +28,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ userId, className = ''
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -47,10 +47,10 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ userId, className = ''
   const loadChatHistory = async () => {
     try {
       const { data, error } = await supabase
-        .from('chat_messages')
+        .from('chat_history')
         .select('*')
         .eq('user_id', userId)
-        .order('created_at', { ascending: true })
+        .order('timestamp', { ascending: true })
         .limit(50);
 
       if (error) throw error;
@@ -68,7 +68,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ userId, className = ''
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'chat_messages',
+          table: 'chat_history',
           filter: `user_id=eq.${userId}`
         },
         (payload) => {
@@ -305,11 +305,11 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ userId, className = ''
               messages.map((message) => (
                 <div
                   key={message.id}
-                  className={`flex ${message.sender_type === 'user' ? 'justify-end' : 'justify-start'}`}
+                  className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
                     className={`max-w-[80%] rounded-lg px-3 py-2 ${
-                      message.sender_type === 'user'
+                      message.sender === 'user'
                         ? 'bg-primary text-primary-foreground'
                         : 'bg-muted text-muted-foreground'
                     }`}
@@ -317,7 +317,7 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ userId, className = ''
                     <p className="text-sm">{message.message}</p>
                     <div className="flex justify-between items-center mt-1">
                       <span className="text-xs opacity-70">
-                        {formatTime(message.created_at)}
+                        {formatTime(message.timestamp)}
                       </span>
                       {message.message_type === 'voice' && (
                         <Mic className="h-3 w-3 opacity-70" />
