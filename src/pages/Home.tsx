@@ -179,6 +179,28 @@ export const Home = () => {
         </div>
       </section>
 
+      {/* About Section */}
+      <section className="py-20">
+        <div className="container mx-auto px-6">
+          <Card className="p-8 lg:p-12 bg-gradient-card border-border/50">
+            <div className="text-center max-w-3xl mx-auto">
+              <div className="mb-4">
+                <Heart className="w-10 h-10 mx-auto text-primary animate-pulse" />
+              </div>
+              <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-6">
+                A Mission from the Heart
+              </h2>
+              <p className="text-lg text-muted-foreground leading-relaxed mb-8">
+                We believe that true wellness begins with a healthy mind. In a world that's constantly demanding our attention, we've created a sanctuary for you to reconnect with yourself. Our mission is to empower and protect the mental well-being of the youth, providing tools that foster balance, resilience, and self-awareness.
+              </p>
+              <p className="text-md text-foreground italic">
+                Created with ❤️ by Sarang Kadam
+              </p>
+            </div>
+          </Card>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20 bg-gradient-hero relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-glow opacity-20" />
