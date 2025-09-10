@@ -14,33 +14,75 @@ export type Database = {
   }
   public: {
     Tables: {
-      chat_messages: {
+      chat_history: {
         Row: {
-          created_at: string
           id: string
-          message: string
-          message_type: string | null
-          metadata: Json | null
-          sender_type: string
           user_id: string
+          message: string
+          sender: string
+          message_type: string | null
+          timestamp: string
+          metadata: Json | null
         }
         Insert: {
-          created_at?: string
           id?: string
-          message: string
-          message_type?: string | null
-          metadata?: Json | null
-          sender_type: string
           user_id: string
+          message: string
+          sender: string
+          message_type?: string | null
+          timestamp?: string
+          metadata?: Json | null
         }
         Update: {
-          created_at?: string
           id?: string
-          message?: string
-          message_type?: string | null
-          metadata?: Json | null
-          sender_type?: string
           user_id?: string
+          message?: string
+          sender?: string
+          message_type?: string | null
+          timestamp?: string
+          metadata?: Json | null
+        }
+        Relationships: []
+      }
+      todo_lists: {
+        Row: {
+          id: string
+          user_id: string
+          task: string
+          description: string | null
+          status: string | null
+          priority: number | null
+          due_date: string | null
+          due_time: string | null
+          completed: boolean | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          task: string
+          description?: string | null
+          status?: string | null
+          priority?: number | null
+          due_date?: string | null
+          due_time?: string | null
+          completed?: boolean | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          task?: string
+          description?: string | null
+          status?: string | null
+          priority?: number | null
+          due_date?: string | null
+          due_time?: string | null
+          completed?: boolean | null
+          created_at?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -251,7 +293,7 @@ export type Database = {
     Enums: {
       [_ in never]: never
     }
-    CompositeTypes: {
+    CompositeTypes:. {
       [_ in never]: never
     }
   }

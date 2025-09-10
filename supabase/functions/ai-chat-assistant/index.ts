@@ -91,11 +91,11 @@ Guidelines:
 
     // Store user message
     await supabase
-      .from('chat_messages')
+      .from('chat_history')
       .insert({
         user_id: userId,
         message: message,
-        sender_type: 'user',
+        sender: 'user',
         message_type: messageType,
         metadata: { timestamp: new Date().toISOString() }
       });
@@ -129,11 +129,11 @@ Guidelines:
 
     // Store AI response
     await supabase
-      .from('chat_messages')
+      .from('chat_history')
       .insert({
         user_id: userId,
         message: aiMessage,
-        sender_type: 'ai',
+        sender: 'ai',
         message_type: 'text',
         metadata: { 
           timestamp: new Date().toISOString(),
