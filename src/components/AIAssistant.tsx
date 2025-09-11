@@ -54,7 +54,15 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ userId, className = ''
         .limit(50);
 
       if (error) throw error;
-      setMessages(data || []);
+      // Map the database fields to match the Message interface
+      const mappedMessages = (data || []).map(msg => ({
+        id: msg.id,
+        message: msg.message,
+        sender: msg.sender_type, // Map sender_type to sender
+        timestamp: msg.timestamp,
+        message_type: msg.message_type
+      }));
+      setMessages(mappedMessages);
     } catch (error) {
       console.error('Error loading chat history:', error);
     }
