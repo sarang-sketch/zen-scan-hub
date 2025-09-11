@@ -1,6 +1,23 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
+
+// Create a dummy user and session
+const dummyUser: User = {
+  id: 'dummy-user-id',
+  app_metadata: { provider: 'email' },
+  user_metadata: { full_name: 'Dummy User' },
+  aud: 'authenticated',
+  created_at: new Date().toISOString(),
+  email: 'dummy@example.com',
+};
+
+const dummySession: Session = {
+  access_token: 'dummy-access-token',
+  refresh_token: 'dummy-refresh-token',
+  expires_in: 3600,
+  token_type: 'bearer',
+  user: dummyUser,
+};
 
 interface AuthContextType {
   user: User | null;
@@ -28,91 +45,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        // Create or update profile when user signs up
-        if (session?.user) {
-          await createOrUpdateProfile(session.user);
-        }
-        
-        setLoading(false);
-      }
-    );
-
-    return () => subscription.unsubscribe();
+    // On initial load, set loading to false.
+    setLoading(false);
   }, []);
 
-  const createOrUpdateProfile = async (user: User) => {
-    try {
-      const { data: existingProfile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
-
-      if (!existingProfile) {
-        const { error } = await supabase
-          .from('profiles')
-          .insert({
-            user_id: user.id,
-            display_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
-            avatar_url: user.user_metadata?.avatar_url,
-          });
-
-        if (error) {
-          console.error('Error creating profile:', error);
-        }
-      }
-    } catch (error) {
-      console.error('Error with profile:', error);
-    }
-  };
-
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) throw error;
+    // Any email/password is valid
+    setUser(dummyUser);
+    setSession(dummySession);
   };
 
   const signUp = async (email: string, password: string, displayName?: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: displayName,
-        },
-      },
-    });
-    if (error) throw error;
+    // For simplicity, signUp will just sign in the user.
+    await signIn(email, password);
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    setUser(null);
+    setSession(null);
   };
 
   const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/dashboard`,
-      },
-    });
-    if (error) throw error;
+    // For simplicity, signInWithGoogle will also just sign in the user.
+    await signIn('dummy-google@example.com', 'dummy-password');
   };
 
   const value = {
