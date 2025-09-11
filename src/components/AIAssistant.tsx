@@ -80,7 +80,14 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ userId, className = ''
           filter: `user_id=eq.${userId}`
         },
         (payload) => {
-          setMessages(prev => [...prev, payload.new as Message]);
+          const newMessage = {
+            id: payload.new.id,
+            message: payload.new.message,
+            sender: payload.new.sender_type,
+            timestamp: payload.new.timestamp,
+            message_type: payload.new.message_type
+          };
+          setMessages(prev => [...prev, newMessage]);
         }
       )
       .subscribe();
