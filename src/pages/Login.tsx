@@ -4,9 +4,9 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Brain, Mail, Lock, Eye, EyeOff } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Login = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -14,56 +14,48 @@ export const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
-  const { signIn, signUp, signInWithGoogle } = useAuth();
   const { toast } = useToast();
 
-  const from = location.state?.from?.pathname || "/dashboard";
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     
-    try {
-      if (isSignUp) {
-        await signUp(email, password, name);
-        toast({
-          title: "Account Created!",
-          description: "Your BalanceAI account has been created successfully.",
-        });
-      } else {
-        await signIn(email, password);
-        toast({
-          title: "Welcome Back!",
-          description: "You've been logged in successfully.",
-        });
-      }
-      navigate(from, { replace: true });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
+    // Simulate login/signup
+    toast({
+      title: isSignUp ? "Account Created!" : "Welcome Back!",
+      description: isSignUp 
+        ? "Your BalanceAI account has been created successfully." 
+        : "You've been logged in successfully.",
+    });
+    
+    // Redirect to checkup after "login"
+    setTimeout(() => {
+      navigate("/checkup");
+    }, 1000);
   };
 
   const handleGoogleLogin = async () => {
-    setLoading(true);
     try {
-      await signInWithGoogle();
-    } catch (error: any) {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/checkup`
+        }
+      });
+      
+      if (error) {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
       toast({
         title: "Error",
-        description: error.message,
+        description: "Failed to sign in with Google",
         variant: "destructive"
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -143,8 +135,8 @@ export const Login = () => {
                 </div>
               </div>
 
-              <Button type="submit" variant="hero" className="w-full" disabled={loading}>
-                {loading ? "Loading..." : (isSignUp ? "Create Account" : "Sign In")}
+              <Button type="submit" variant="hero" className="w-full">
+                {isSignUp ? "Create Account" : "Sign In"}
               </Button>
             </form>
 
@@ -162,7 +154,6 @@ export const Login = () => {
                 variant="outline"
                 onClick={handleGoogleLogin}
                 className="w-full mt-4"
-                disabled={loading}
               >
                 <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
                   <path

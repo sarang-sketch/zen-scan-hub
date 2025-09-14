@@ -3,20 +3,19 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Layout } from "@/components/Layout";
-import Index from "./pages/Index";
-import { Login } from "./pages/Login";
-import { Dashboard } from "./pages/Dashboard";
+import { Home } from "./pages/Home";
 import { Checkup } from "./pages/Checkup";
-import { Results } from "./pages/Results";
 import { Scanner } from "./pages/Scanner";
-import TodoPage from "./pages/Todo";
+import { Dashboard } from "./pages/Dashboard";
+import { Results } from "./pages/Results";
+import { Help } from "./pages/Help";
+import { Login } from "./pages/Login";
+import { Parent } from "./pages/Parent";
 import { Wellness } from "./pages/Wellness";
 import { Workouts } from "./pages/Workouts";
-import { Parent } from "./pages/Parent";
-import { Help } from "./pages/Help";
+import { AIExtensionPage } from "./pages/AIExtensionPage";
+import TodoPage from "./pages/Todo";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,103 +26,23 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <AuthProvider>
+        <Layout>
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<Home />} />
+            <Route path="/checkup" element={<Checkup />} />
+            <Route path="/scanner" element={<Scanner />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/results" element={<Results />} />
+            <Route path="/wellness" element={<Wellness />} />
+            <Route path="/workouts" element={<Workouts />} />
+            <Route path="/help" element={<Help />} />
             <Route path="/login" element={<Login />} />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Layout>
-                    <Dashboard />
-                  </Layout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/checkup"
-              element={
-                <ProtectedRoute>
-                  <Layout>
-                    <Checkup />
-                  </Layout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/results"
-              element={
-                <ProtectedRoute>
-                  <Layout>
-                    <Results />
-                  </Layout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/scanner"
-              element={
-                <ProtectedRoute>
-                  <Layout>
-                    <Scanner />
-                  </Layout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/todo"
-              element={
-                <ProtectedRoute>
-                  <Layout>
-                    <TodoPage />
-                  </Layout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/wellness"
-              element={
-                <ProtectedRoute>
-                  <Layout>
-                    <Wellness />
-                  </Layout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/workouts"
-              element={
-                <ProtectedRoute>
-                  <Layout>
-                    <Workouts />
-                  </Layout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/parent"
-              element={
-                <ProtectedRoute>
-                  <Layout>
-                    <Parent />
-                  </Layout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/help"
-              element={
-                <ProtectedRoute>
-                  <Layout>
-                    <Help />
-                  </Layout>
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/parent" element={<Parent />} />
+            <Route path="/ai-extension" element={<AIExtensionPage />} />
+            <Route path="/todo" element={<TodoPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </AuthProvider>
+        </Layout>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
