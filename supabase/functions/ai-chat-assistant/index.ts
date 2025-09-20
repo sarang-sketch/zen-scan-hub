@@ -20,9 +20,9 @@ serve(async (req) => {
       throw new Error('Message and userId are required');
     }
 
-    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
-    if (!openAIApiKey) {
-      throw new Error('OpenAI API key not configured');
+    const groqApiKey = Deno.env.get('GROQ_API_KEY');
+    if (!groqApiKey) {
+      throw new Error('Groq API key not configured');
     }
 
     // Initialize Supabase client
@@ -101,14 +101,14 @@ Guidelines:
       });
 
     // Get AI response
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
+        'Authorization': `Bearer ${groqApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'llama-3.1-70b-versatile',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: message }
@@ -120,7 +120,7 @@ Guidelines:
 
     if (!response.ok) {
       const error = await response.text();
-      console.error('OpenAI API error:', error);
+      console.error('Groq API error:', error);
       throw new Error('Failed to get AI response');
     }
 
@@ -137,7 +137,7 @@ Guidelines:
         message_type: 'text',
         metadata: { 
           timestamp: new Date().toISOString(),
-          model: 'gpt-4o-mini',
+          model: 'llama-3.1-70b-versatile',
           tokens_used: aiData.usage?.total_tokens || 0
         }
       });
@@ -145,7 +145,7 @@ Guidelines:
     // Check if we should generate daily guidance
     if (!dailyGuidance && (message.toLowerCase().includes('daily') || message.toLowerCase().includes('goals'))) {
       try {
-        await generateDailyGuidance(supabase, userId, userContext, openAIApiKey);
+        await generateDailyGuidance(supabase, userId, userContext, groqApiKey);
       } catch (error) {
         console.error('Error generating daily guidance:', error);
       }
@@ -170,7 +170,7 @@ Guidelines:
   }
 });
 
-async function generateDailyGuidance(supabase: any, userId: string, userContext: any, openAIApiKey: string) {
+async function generateDailyGuidance(supabase: any, userId: string, userContext: any, groqApiKey: string) {
   const guidancePrompt = `Based on this user's wellness data, create personalized daily guidance:
 
 User Context: ${JSON.stringify(userContext)}
@@ -195,14 +195,14 @@ Generate a JSON response with:
 
 Make it specific to their fitness level and recent wellness scores.`;
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${openAIApiKey}`,
+      'Authorization': `Bearer ${groqApiKey}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'gpt-4o-mini',
+      model: 'llama-3.1-70b-versatile',
       messages: [
         { role: 'system', content: 'You are a wellness expert. Respond only with valid JSON.' },
         { role: 'user', content: guidancePrompt }

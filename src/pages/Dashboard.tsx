@@ -287,11 +287,15 @@ export const Dashboard = () => {
               </div>
             </div>
           </Card>
+
+          {/* AI Assistant */}
+          {user && (
+            <div className="fixed bottom-6 right-6 z-50">
+              <AIAssistant userId={user.id} />
+            </div>
+          )}
         </div>
       </div>
-      
-      {/* AI Assistant */}
-      {user && <AIAssistant userId={user.id} />}
     </div>
   );
 };

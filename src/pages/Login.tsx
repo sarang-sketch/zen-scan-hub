@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Brain, Mail, Lock, Eye, EyeOff } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -16,42 +16,35 @@ export const Login = () => {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { signIn, signUp, signInWithGoogle } = useAuth();
   const { toast } = useToast();
-  const { signUp, signIn, user } = useAuth();
 
-  useEffect(() => {
-    if (user) {
-      navigate("/dashboard");
-    }
-  }, [user, navigate]);
+  const from = location.state?.from?.pathname || "/dashboard";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
+    
     try {
       if (isSignUp) {
-        const { error } = await signUp(email, password, name);
-        if (error) throw error;
-        
+        await signUp(email, password, name);
         toast({
           title: "Account Created!",
-          description: "Please check your email to verify your account.",
+          description: "Your BalanceAI account has been created successfully.",
         });
       } else {
-        const { error } = await signIn(email, password);
-        if (error) throw error;
-        
+        await signIn(email, password);
         toast({
           title: "Welcome Back!",
           description: "You've been logged in successfully.",
         });
-        navigate("/dashboard");
       }
+      navigate(from, { replace: true });
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message || "An error occurred. Please try again.",
+        description: error.message,
         variant: "destructive"
       });
     } finally {
@@ -60,12 +53,18 @@ export const Login = () => {
   };
 
   const handleGoogleLogin = async () => {
-    // Google OAuth is not configured in this demo
-    toast({
-      title: "Google Sign-In",
-      description: "Google authentication is not configured for this demo. Please use email/password.",
-      variant: "destructive"
-    });
+    setLoading(true);
+    try {
+      await signInWithGoogle();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -145,7 +144,7 @@ export const Login = () => {
               </div>
 
               <Button type="submit" variant="hero" className="w-full" disabled={loading}>
-                {loading ? "Please wait..." : (isSignUp ? "Create Account" : "Sign In")}
+                {loading ? "Loading..." : (isSignUp ? "Create Account" : "Sign In")}
               </Button>
             </form>
 
@@ -163,6 +162,7 @@ export const Login = () => {
                 variant="outline"
                 onClick={handleGoogleLogin}
                 className="w-full mt-4"
+                disabled={loading}
               >
                 <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
                   <path
