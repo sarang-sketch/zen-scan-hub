@@ -16,34 +16,73 @@ export type Database = {
     Tables: {
       chat_history: {
         Row: {
-          created_at: string
           id: string
-          message: string
-          message_type: string | null
-          metadata: Json | null
-          sender_type: string
-          timestamp: string | null
           user_id: string
+          message: string
+          sender: string
+          message_type: string | null
+          timestamp: string
+          metadata: Json | null
         }
         Insert: {
-          created_at?: string
           id?: string
-          message: string
-          message_type?: string | null
-          metadata?: Json | null
-          sender_type: string
-          timestamp?: string | null
           user_id: string
+          message: string
+          sender: string
+          message_type?: string | null
+          timestamp?: string
+          metadata?: Json | null
         }
         Update: {
-          created_at?: string
           id?: string
-          message?: string
-          message_type?: string | null
-          metadata?: Json | null
-          sender_type?: string
-          timestamp?: string | null
           user_id?: string
+          message?: string
+          sender?: string
+          message_type?: string | null
+          timestamp?: string
+          metadata?: Json | null
+        }
+        Relationships: []
+      }
+      todo_lists: {
+        Row: {
+          id: string
+          user_id: string
+          task: string
+          description: string | null
+          status: string | null
+          priority: number | null
+          due_date: string | null
+          due_time: string | null
+          completed: boolean | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          task: string
+          description?: string | null
+          status?: string | null
+          priority?: number | null
+          due_date?: string | null
+          due_time?: string | null
+          completed?: boolean | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          task?: string
+          description?: string | null
+          status?: string | null
+          priority?: number | null
+          due_date?: string | null
+          due_time?: string | null
+          completed?: boolean | null
+          created_at?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -122,117 +161,6 @@ export type Database = {
           preferences?: Json | null
           updated_at?: string
           user_id?: string
-        }
-        Relationships: []
-      }
-      progress_tracking: {
-        Row: {
-          created_at: string
-          date: string
-          id: string
-          metric_type: string
-          notes: string | null
-          user_id: string
-          value: number
-        }
-        Insert: {
-          created_at?: string
-          date?: string
-          id?: string
-          metric_type: string
-          notes?: string | null
-          user_id: string
-          value: number
-        }
-        Update: {
-          created_at?: string
-          date?: string
-          id?: string
-          metric_type?: string
-          notes?: string | null
-          user_id?: string
-          value?: number
-        }
-        Relationships: []
-      }
-      scan_results: {
-        Row: {
-          analysis_data: Json
-          confidence_score: number | null
-          created_at: string
-          id: string
-          image_url: string | null
-          recommendations: Json | null
-          scan_type: string
-          user_id: string
-        }
-        Insert: {
-          analysis_data?: Json
-          confidence_score?: number | null
-          created_at?: string
-          id?: string
-          image_url?: string | null
-          recommendations?: Json | null
-          scan_type: string
-          user_id: string
-        }
-        Update: {
-          analysis_data?: Json
-          confidence_score?: number | null
-          created_at?: string
-          id?: string
-          image_url?: string | null
-          recommendations?: Json | null
-          scan_type?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      todo_lists: {
-        Row: {
-          category: string | null
-          completed: boolean | null
-          created_at: string
-          day_of_week: number | null
-          description: string | null
-          due_date: string | null
-          id: string
-          priority: number | null
-          protein_amount: number | null
-          task: string
-          updated_at: string
-          user_id: string
-          workout_type: string | null
-        }
-        Insert: {
-          category?: string | null
-          completed?: boolean | null
-          created_at?: string
-          day_of_week?: number | null
-          description?: string | null
-          due_date?: string | null
-          id?: string
-          priority?: number | null
-          protein_amount?: number | null
-          task: string
-          updated_at?: string
-          user_id: string
-          workout_type?: string | null
-        }
-        Update: {
-          category?: string | null
-          completed?: boolean | null
-          created_at?: string
-          day_of_week?: number | null
-          description?: string | null
-          due_date?: string | null
-          id?: string
-          priority?: number | null
-          protein_amount?: number | null
-          task?: string
-          updated_at?: string
-          user_id?: string
-          workout_type?: string | null
         }
         Relationships: []
       }
@@ -357,16 +285,7 @@ export type Database = {
       }
     }
     Views: {
-      weekly_workout_schedule: {
-        Row: {
-          day_of_week: number | null
-          exercise_count: number | null
-          exercises: string | null
-          user_id: string | null
-          workout_type: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       [_ in never]: never
