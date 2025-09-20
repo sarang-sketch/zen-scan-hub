@@ -5,9 +5,12 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Brain, Heart, Moon, TrendingUp, Award, Calendar, Target, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { AIAssistant } from "@/components/AIAssistant";
 
 export const Dashboard = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [selectedPeriod, setSelectedPeriod] = useState("week");
 
   const wellnessScore = 78;
@@ -286,6 +289,9 @@ export const Dashboard = () => {
           </Card>
         </div>
       </div>
+      
+      {/* AI Assistant */}
+      {user && <AIAssistant userId={user.id} />}
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Brain, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const Login = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -14,49 +14,58 @@ export const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { signUp, signIn, user } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (user) {
+      navigate("/dashboard");
+    }
+  }, [user, navigate]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Simulate login/signup
-    toast({
-      title: isSignUp ? "Account Created!" : "Welcome Back!",
-      description: isSignUp 
-        ? "Your BalanceAI account has been created successfully." 
-        : "You've been logged in successfully.",
-    });
-    
-    // Redirect to checkup after "login"
-    setTimeout(() => {
-      navigate("/checkup");
-    }, 1000);
+    setLoading(true);
+
+    try {
+      if (isSignUp) {
+        const { error } = await signUp(email, password, name);
+        if (error) throw error;
+        
+        toast({
+          title: "Account Created!",
+          description: "Please check your email to verify your account.",
+        });
+      } else {
+        const { error } = await signIn(email, password);
+        if (error) throw error;
+        
+        toast({
+          title: "Welcome Back!",
+          description: "You've been logged in successfully.",
+        });
+        navigate("/dashboard");
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "An error occurred. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGoogleLogin = async () => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/checkup`
-        }
-      });
-      
-      if (error) {
-        toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive"
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to sign in with Google",
-        variant: "destructive"
-      });
-    }
+    // Google OAuth is not configured in this demo
+    toast({
+      title: "Google Sign-In",
+      description: "Google authentication is not configured for this demo. Please use email/password.",
+      variant: "destructive"
+    });
   };
 
   return (
@@ -135,8 +144,8 @@ export const Login = () => {
                 </div>
               </div>
 
-              <Button type="submit" variant="hero" className="w-full">
-                {isSignUp ? "Create Account" : "Sign In"}
+              <Button type="submit" variant="hero" className="w-full" disabled={loading}>
+                {loading ? "Please wait..." : (isSignUp ? "Create Account" : "Sign In")}
               </Button>
             </form>
 

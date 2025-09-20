@@ -4,7 +4,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Layout } from "@/components/Layout";
-import { Home } from "./pages/Home";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import Index from "./pages/Index";
 import { Checkup } from "./pages/Checkup";
 import { Scanner } from "./pages/Scanner";
 import { Dashboard } from "./pages/Dashboard";
@@ -22,29 +24,31 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/checkup" element={<Checkup />} />
-            <Route path="/scanner" element={<Scanner />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/results" element={<Results />} />
-            <Route path="/wellness" element={<Wellness />} />
-            <Route path="/workouts" element={<Workouts />} />
-            <Route path="/help" element={<Help />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/parent" element={<Parent />} />
-            <Route path="/ai-extension" element={<AIExtensionPage />} />
-            <Route path="/todo" element={<TodoPage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Layout>
-      </BrowserRouter>
-    </TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Layout>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/checkup" element={<ProtectedRoute><Checkup /></ProtectedRoute>} />
+              <Route path="/scanner" element={<ProtectedRoute><Scanner /></ProtectedRoute>} />
+              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/results" element={<ProtectedRoute><Results /></ProtectedRoute>} />
+              <Route path="/wellness" element={<ProtectedRoute><Wellness /></ProtectedRoute>} />
+              <Route path="/workouts" element={<ProtectedRoute><Workouts /></ProtectedRoute>} />
+              <Route path="/help" element={<ProtectedRoute><Help /></ProtectedRoute>} />
+              <Route path="/parent" element={<ProtectedRoute><Parent /></ProtectedRoute>} />
+              <Route path="/ai-extension" element={<ProtectedRoute><AIExtensionPage /></ProtectedRoute>} />
+              <Route path="/todo" element={<ProtectedRoute><TodoPage /></ProtectedRoute>} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Layout>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
