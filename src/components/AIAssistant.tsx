@@ -13,6 +13,10 @@ interface Message {
   sender: string;
   timestamp: string;
   message_type: string;
+  sender_type?: string;
+  metadata?: any;
+  user_id?: string;
+  created_at?: string;
 }
 
 interface AIAssistantProps {
@@ -54,7 +58,21 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ userId, className = ''
         .limit(50);
 
       if (error) throw error;
-      setMessages(data || []);
+      
+      // Map the data to match our Message interface
+      const mappedMessages = (data || []).map(item => ({
+        id: item.id,
+        message: item.message,
+        sender: item.sender_type,
+        timestamp: item.timestamp || item.created_at,
+        message_type: item.message_type,
+        sender_type: item.sender_type,
+        metadata: item.metadata,
+        user_id: item.user_id,
+        created_at: item.created_at
+      }));
+      
+      setMessages(mappedMessages);
     } catch (error) {
       console.error('Error loading chat history:', error);
     }
@@ -72,7 +90,19 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ userId, className = ''
           filter: `user_id=eq.${userId}`
         },
         (payload) => {
-          setMessages(prev => [...prev, payload.new as Message]);
+          const newMessage = payload.new as any;
+          const mappedMessage: Message = {
+            id: newMessage.id,
+            message: newMessage.message,
+            sender: newMessage.sender_type,
+            timestamp: newMessage.timestamp || newMessage.created_at,
+            message_type: newMessage.message_type,
+            sender_type: newMessage.sender_type,
+            metadata: newMessage.metadata,
+            user_id: newMessage.user_id,
+            created_at: newMessage.created_at
+          };
+          setMessages(prev => [...prev, mappedMessage]);
         }
       )
       .subscribe();

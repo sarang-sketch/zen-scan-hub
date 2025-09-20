@@ -1,144 +1,106 @@
-import { useState } from "react";
+import { Sidebar } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Brain, Camera, TrendingUp, Shield, LogIn, Menu, X, ListTodo, Puzzle } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { AIAssistant } from "@/components/AIAssistant";
+import { 
+  Home, 
+  Heart, 
+  ScanLine, 
+  BarChart3, 
+  Brain,
+  Menu,
+  Users,
+  HelpCircle,
+  Settings,
+  User,
+  Dumbbell,
+  CheckSquare,
+  Bot,
+  LogOut
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
-interface LayoutProps {
-  children: React.ReactNode;
-}
-
-export const Layout = ({ children }: LayoutProps) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const navigate = useNavigate();
+export const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
+  const { user, signOut } = useAuth();
 
-  const navItems = [
-    { name: "Checkup Test", path: "/checkup", icon: Brain },
-    { name: "Photo Scanner", path: "/scanner", icon: Camera },
-    { name: "Progress", path: "/dashboard", icon: TrendingUp },
-    { name: "To-Do List", path: "/todo", icon: ListTodo },
-    { name: "Parent Mode", path: "/parent", icon: Shield },
-    { name: "AI Extension", path: "/ai-extension", icon: Puzzle },
+  // Don't show sidebar on login page or home page
+  const showSidebar = location.pathname !== "/login" && location.pathname !== "/" && user;
+
+  const menuItems = [
+    { href: "/dashboard", title: "Dashboard", icon: BarChart3 },
+    { href: "/checkup", title: "Wellness Checkup", icon: Heart },
+    { href: "/scanner", title: "AI Scanner", icon: ScanLine },
+    { href: "/workouts", title: "Workouts", icon: Dumbbell },
+    { href: "/wellness", title: "Wellness", icon: Brain },
+    { href: "/todo", title: "Todo", icon: CheckSquare },
+    { href: "/ai-extension", title: "AI Extension", icon: Bot },
+    { href: "/parent", title: "Parent Dashboard", icon: Users },
+    { href: "/help", title: "Help", icon: HelpCircle },
   ];
 
-  const handleNavigation = (path: string) => {
-    navigate(path);
-    setIsMenuOpen(false);
-  };
+  if (!showSidebar) {
+    return <main className="min-h-screen bg-background">{children}</main>;
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-wellness">
-      {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-card/80 backdrop-blur-xl border-b border-border/50">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            {/* Logo */}
-            <button
-              onClick={() => navigate("/")}
-              className="flex items-center gap-3 group"
-            >
-              <div className="w-10 h-10 rounded-xl bg-gradient-hero flex items-center justify-center shadow-glow">
-                <Brain className="w-6 h-6 text-primary-foreground" />
-              </div>
-              <div className="text-left">
-                <h1 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
-                  BalanceAI
-                </h1>
-                <p className="text-xs text-muted-foreground">Find Your Balance</p>
-              </div>
-            </button>
-
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-2">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = location.pathname === item.path;
-                return (
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-background">
+        <Sidebar className="border-r border-border bg-card">
+          <div className="flex h-full max-h-screen flex-col">
+            <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
+              <Link to="/dashboard" className="flex items-center gap-2 font-semibold">
+                <Brain className="h-6 w-6 text-primary" />
+                <span className="text-primary">BalanceAI</span>
+              </Link>
+            </div>
+            
+            <div className="flex-1">
+              <nav className="grid items-start px-2 text-sm font-medium lg:px-4 py-4">
+                {menuItems.map((item) => (
                   <Button
-                    key={item.path}
-                    variant={isActive ? "default" : "ghost"}
-                    onClick={() => handleNavigation(item.path)}
-                    className="gap-2"
+                    key={item.href}
+                    variant={location.pathname === item.href ? "secondary" : "ghost"}
+                    className="justify-start mb-1"
+                    asChild
                   >
-                    <Icon className="w-4 h-4" />
-                    {item.name}
+                    <Link to={item.href}>
+                      <item.icon className="mr-2 h-4 w-4" />
+                      {item.title}
+                    </Link>
                   </Button>
-                );
-              })}
-              <Button variant="glow" onClick={() => handleNavigation("/login")} className="ml-4 gap-2">
-                <LogIn className="w-4 h-4" />
-                Login
-              </Button>
+                ))}
+              </nav>
             </div>
-
-            {/* Mobile Menu Button */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="md:hidden"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </Button>
+            
+            {/* User section */}
+            {user && (
+              <div className="mt-auto p-4 border-t border-border">
+                <div className="space-y-2">
+                  <div className="px-2 py-1">
+                    <p className="text-sm font-medium text-foreground truncate">
+                      {user.email}
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+                    onClick={() => signOut()}
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign Out
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
-
-          {/* Mobile Navigation */}
-          {isMenuOpen && (
-            <div className="md:hidden mt-4 pb-4 border-t border-border/50 pt-4">
-              <div className="flex flex-col gap-2">
-                {navItems.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = location.pathname === item.path;
-                  return (
-                    <Button
-                      key={item.path}
-                      variant={isActive ? "default" : "ghost"}
-                      onClick={() => handleNavigation(item.path)}
-                      className="justify-start gap-2 w-full"
-                    >
-                      <Icon className="w-4 h-4" />
-                      {item.name}
-                    </Button>
-                  );
-                })}
-                <Button variant="glow" onClick={() => handleNavigation("/login")} className="gap-2 mt-2">
-                  <LogIn className="w-4 h-4" />
-                  Login
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
-      </nav>
-
-      {/* Main Content */}
-      <main className="flex-1">
-        {children}
-      </main>
-
-      {/* Footer */}
-      <footer className="bg-card/50 border-t border-border/50 py-8">
-        <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-gradient-hero flex items-center justify-center">
-                <Brain className="w-5 h-5 text-primary-foreground" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">BalanceAI</p>
-                <p className="text-xs text-muted-foreground">Your private health companion</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <span className="flex items-center gap-2">
-                🔒 Your data stays safe. We don't sell or share.
-              </span>
-            </div>
-          </div>
-        </div>
-      </footer>
-      <AIAssistant userId="a1b2c3d4-e5f6-7890-1234-567890abcdef" />
-    </div>
+        </Sidebar>
+        
+        <main className="flex-1 overflow-auto">
+          {children}
+        </main>
+      </div>
+    </SidebarProvider>
   );
 };
