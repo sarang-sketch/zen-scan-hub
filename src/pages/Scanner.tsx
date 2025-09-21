@@ -1,8 +1,9 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Camera, Upload, Image, Utensils, User, Sparkles, TrendingUp } from "lucide-react";
+import { Camera, Upload, Utensils, User, Sparkles, TrendingUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ScanResult {
   type: 'food' | 'selfie';
@@ -33,57 +34,44 @@ export const Scanner = () => {
     }
   };
 
-  const simulateScan = async (type: 'food' | 'selfie') => {
+  const handleScan = async (type: 'food' | 'selfie') => {
+    if (!selectedImage) {
+      toast({
+        title: "No image selected",
+        description: "Please choose an image to scan.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsScanning(true);
     setScanType(type);
-    
-    // Simulate AI processing
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    if (type === 'food') {
-      setScanResult({
-        type: 'food',
-        analysis: {
-          calories: Math.floor(Math.random() * 400) + 200,
-          nutrients: [
-            { name: 'Carbohydrates', amount: '45g', color: 'from-yellow-500 to-orange-500' },
-            { name: 'Protein', amount: '28g', color: 'from-green-500 to-emerald-500' },
-            { name: 'Fat', amount: '12g', color: 'from-blue-500 to-cyan-500' },
-            { name: 'Fiber', amount: '8g', color: 'from-purple-500 to-violet-500' }
-          ],
-          recommendations: [
-            "Great protein content! This will help with muscle recovery.",
-            "Consider adding some leafy greens for extra vitamins.",
-            "Perfect portion size for a balanced meal.",
-            "Try pairing with water instead of sugary drinks."
-          ]
-        }
+    setScanResult(null);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('health-scanner', {
+        body: { image: selectedImage, scanType: type },
       });
-    } else {
-      setScanResult({
-        type: 'selfie',
-        analysis: {
-          healthMetrics: [
-            { name: 'Sleep Quality', status: 'Needs Attention', advice: 'Dark circles detected. Aim for 7-9 hours of quality sleep.', color: 'from-yellow-500 to-orange-500' },
-            { name: 'Hydration', status: 'Good', advice: 'Skin looks well-hydrated. Keep up the good water intake!', color: 'from-green-500 to-emerald-500' },
-            { name: 'Stress Levels', status: 'Moderate', advice: 'Some tension visible. Try relaxation techniques.', color: 'from-blue-500 to-cyan-500' },
-            { name: 'Overall Wellness', status: 'Good', advice: 'You look healthy! Keep maintaining your current routine.', color: 'from-purple-500 to-violet-500' }
-          ],
-          recommendations: [
-            "Consider a consistent sleep schedule to improve rest quality.",
-            "Add 10 minutes of meditation to reduce stress.",
-            "Your skin looks healthy - maintain current skincare routine.",
-            "Regular exercise can boost overall wellness appearance."
-          ]
-        }
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      setScanResult(data);
+      toast({
+        title: "Scan Complete!",
+        description: `Your ${type} analysis is ready with personalized recommendations.`,
       });
+    } catch (error) {
+      console.error("Error scanning image:", error);
+      toast({
+        title: "Scan Failed",
+        description: "Could not get analysis from the AI. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsScanning(false);
     }
-    
-    setIsScanning(false);
-    toast({
-      title: "Scan Complete!",
-      description: `Your ${type} analysis is ready with personalized recommendations.`,
-    });
   };
 
   const resetScan = () => {
@@ -179,7 +167,7 @@ export const Scanner = () => {
                     <div className="space-y-3">
                       <Button
                         variant={scanType === 'food' ? 'default' : 'outline'}
-                        onClick={() => simulateScan('food')}
+                        onClick={() => handleScan('food')}
                         disabled={isScanning}
                         className="w-full justify-start gap-3 h-12"
                       >
@@ -188,7 +176,7 @@ export const Scanner = () => {
                       </Button>
                       <Button
                         variant={scanType === 'selfie' ? 'default' : 'outline'}
-                        onClick={() => simulateScan('selfie')}
+                        onClick={() => handleScan('selfie')}
                         disabled={isScanning}
                         className="w-full justify-start gap-3 h-12"
                       >

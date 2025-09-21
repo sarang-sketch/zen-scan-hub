@@ -1,29 +1,55 @@
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Shield, Users, Clock, TrendingUp, AlertTriangle, Heart, Settings } from "lucide-react";
+import { Shield, Users, Clock, TrendingUp, AlertTriangle, Heart, Settings, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { formatDistanceToNow } from "date-fns";
+
+interface ChildProfile {
+  display_name: string;
+  age: number;
+  lastCheckup: {
+    created_at: string;
+    score: number;
+    risk_level: string;
+  } | null;
+}
 
 export const Parent = () => {
-  const childProfiles = [
-    {
-      name: "Alex",
-      age: 16,
-      lastCheckup: "2 days ago",
-      overallStatus: "Good",
-      recentScore: 75,
-      alerts: 0,
-      statusColor: "from-green-500 to-emerald-600"
-    },
-    {
-      name: "Jamie",
-      age: 14,
-      lastCheckup: "1 week ago",
-      overallStatus: "Needs Attention",
-      recentScore: 45,
-      alerts: 2,
-      statusColor: "from-yellow-500 to-orange-600"
-    }
-  ];
+  const [childProfiles, setChildProfiles] = useState<ChildProfile[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchChildrenData = async () => {
+      setIsLoading(true);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("User not authenticated");
+
+        const { data, error } = await supabase.functions.invoke('get-children-data', {
+          body: { parent_id: user.id },
+        });
+
+        if (error) throw new Error(error.message);
+
+        setChildProfiles(data);
+      } catch (error) {
+        console.error("Error fetching children data:", error);
+        toast({
+          title: "Error",
+          description: "Could not fetch children's data. Please try again later.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchChildrenData();
+  }, [toast]);
 
   const parentControls = [
     {
@@ -85,52 +111,74 @@ export const Parent = () => {
           {/* Child Profiles */}
           <div className="space-y-6">
             <h2 className="text-2xl font-semibold text-foreground">Children's Wellness Overview</h2>
-            <div className="grid md:grid-cols-2 gap-6">
-              {childProfiles.map((child, index) => (
-                <Card key={index} className="p-6 bg-gradient-card border-border/50 shadow-wellness">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${child.statusColor} flex items-center justify-center shadow-glow`}>
-                          <Users className="w-6 h-6 text-white" />
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-semibold text-foreground">{child.name}</h3>
-                          <p className="text-sm text-muted-foreground">Age {child.age}</p>
-                        </div>
-                      </div>
-                      {child.alerts > 0 && (
-                        <Badge variant="destructive" className="gap-1">
-                          <AlertTriangle className="w-3 h-3" />
-                          {child.alerts} alerts
-                        </Badge>
-                      )}
-                    </div>
+            {isLoading ? (
+              <div className="flex justify-center items-center h-40">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              </div>
+            ) : childProfiles.length === 0 ? (
+              <Card className="p-8 text-center bg-gradient-card border-border/50">
+                <Users className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-xl font-semibold text-foreground">No Children Found</h3>
+                <p className="text-muted-foreground">
+                  Connect with your children to see their wellness overview here.
+                </p>
+              </Card>
+            ) : (
+              <div className="grid md:grid-cols-2 gap-6">
+                {childProfiles.map((child, index) => {
+                  const overallStatus = child.lastCheckup ? (child.lastCheckup.score > 70 ? "Good" : child.lastCheckup.score > 40 ? "Fair" : "Needs Attention") : "Unknown";
+                  const statusColor = overallStatus === "Good" ? "from-green-500 to-emerald-600" : overallStatus === "Fair" ? "from-blue-500 to-cyan-600" : "from-yellow-500 to-orange-600";
+                  const alerts = child.lastCheckup?.risk_level === 'high' || child.lastCheckup?.risk_level === 'critical' ? 1 : 0;
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-1">
-                        <p className="text-sm text-muted-foreground">Overall Status</p>
-                        <Badge variant={child.overallStatus === "Good" ? "default" : "secondary"}>
-                          {child.overallStatus}
-                        </Badge>
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-sm text-muted-foreground">Wellness Score</p>
-                        <p className="text-lg font-semibold text-foreground">{child.recentScore}%</p>
-                      </div>
-                    </div>
+                  return (
+                    <Card key={index} className="p-6 bg-gradient-card border-border/50 shadow-wellness">
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${statusColor} flex items-center justify-center shadow-glow`}>
+                              <Users className="w-6 h-6 text-white" />
+                            </div>
+                            <div>
+                              <h3 className="text-lg font-semibold text-foreground">{child.display_name}</h3>
+                              <p className="text-sm text-muted-foreground">Age {child.age}</p>
+                            </div>
+                          </div>
+                          {alerts > 0 && (
+                            <Badge variant="destructive" className="gap-1">
+                              <AlertTriangle className="w-3 h-3" />
+                              {alerts} alerts
+                            </Badge>
+                          )}
+                        </div>
 
-                    <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground">Last wellness checkup: {child.lastCheckup}</p>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm">View Summary</Button>
-                        <Button variant="ghost" size="sm">Message {child.name}</Button>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-1">
+                            <p className="text-sm text-muted-foreground">Overall Status</p>
+                            <Badge variant={overallStatus === "Good" ? "default" : "secondary"}>
+                              {overallStatus}
+                            </Badge>
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-sm text-muted-foreground">Wellness Score</p>
+                            <p className="text-lg font-semibold text-foreground">{child.lastCheckup?.score ?? 'N/A'}%</p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <p className="text-sm text-muted-foreground">
+                            Last wellness checkup: {child.lastCheckup ? formatDistanceToNow(new Date(child.lastCheckup.created_at), { addSuffix: true }) : 'Never'}
+                          </p>
+                          <div className="flex gap-2">
+                            <Button variant="outline" size="sm">View Summary</Button>
+                            <Button variant="ghost" size="sm">Message {child.display_name}</Button>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
+                    </Card>
+                  )
+                })}
+              </div>
+            )}
           </div>
 
           {/* Weekly Insights */}
